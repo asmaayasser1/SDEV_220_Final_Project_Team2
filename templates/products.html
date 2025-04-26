@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>SDEV 220 School Store</h2>
+    {% for product in products %}
+        <div>
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <p>${{ product.price }}</p>
+            <a href="{{ url_for('add_to_cart', product_id=product.id) }}">Add to Cart</a>
+        </div>
+    {% endfor %}
+{% endblock %}

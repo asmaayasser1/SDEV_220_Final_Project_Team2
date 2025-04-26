@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Checkout</h2>
+    {% if cart_items %}
+        <h3>Order Summary</h3>
+        <ul>
+            {% for item in cart_items %}
+                <li>{{ products[item.product_id].name }} (x{{ item.quantity }}): ${{ (products[item.product_id].price * item.quantity) }}</li>
+            {% endfor %}
+            <li><strong>Total: ${{ total }}</strong></li>
+        </ul>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.customer_name.label }}<br>
+                {{ form.customer_name(size=32) }}
+            </p>
+            <p>
+                {{ form.customer_email.label }}<br>
+                {{ form.customer_email(size=32) }}
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+{% endblock %}

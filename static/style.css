@@ -1,0 +1,7 @@
+body { font-family: Arial, sans-serif; margin: 20px; }
+header { background: #f4f4f4; padding: 10px; text-align: center; }
+nav { margin: 10px 0; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+.success { color: green; }
+form { margin-top: 20px; }
