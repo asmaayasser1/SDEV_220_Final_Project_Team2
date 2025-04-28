@@ -1,15 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, TextAreaField, FloatField, SubmitField
+from wtforms.validators import DataRequired, NumberRange
 import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
-app.config['SECRET_KEY'] = 'sdev220_team2_secret'  # Unique for your project
+app.config['SECRET_KEY'] = 'sdev220_team2_secret'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['TEMPLATES_AUTO_RELOAD'] = True  # Prevent caching
 db = SQLAlchemy(app)
+
+# Custom Jinja2 filter for fixed two-decimal formatting
+def to_fixed(value, decimals=2):
+    return f"{value:.{decimals}f}"
+app.jinja_env.filters['to_fixed'] = to_fixed
 
 # Models
 class Product(db.Model):
@@ -37,11 +43,17 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
 
-# Checkout Form
+# Forms
 class CheckoutForm(FlaskForm):
     customer_name = StringField('Name', validators=[DataRequired()])
     customer_email = StringField('Email', validators=[DataRequired()])
     submit = SubmitField('Place Order')
+
+class ProductForm(FlaskForm):
+    name = StringField('Product Name', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    price = FloatField('Price', validators=[DataRequired(), NumberRange(min=0.01)])
+    submit = SubmitField('Add Product')
 
 # Routes
 @app.route('/')
@@ -116,13 +128,44 @@ def order_confirmation(order_id):
     products = {p.id: p for p in Product.query.all()}
     return render_template('order_confirmation.html', order=order, order_items=order_items, products=products)
 
-# Admin route to view orders (optional)
 @app.route('/admin/orders')
 def admin_orders():
     orders = Order.query.all()
     order_items = OrderItem.query.all()
     products = {p.id: p for p in Product.query.all()}
     return render_template('admin_orders.html', orders=orders, order_items=order_items, products=products)
+
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    if request.args.get('admin_key') != 'sdev220_team2_admin':
+        flash('Unauthorized access!', 'error')
+        return redirect(url_for('product_list'))
+    form = ProductForm()
+    if form.validate_on_submit():
+        product = Product(
+            name=form.name.data,
+            description=form.description.data,
+            price=form.price.data
+        )
+        db.session.add(product)
+        db.session.commit()
+        flash('Product added successfully!', 'success')
+        return redirect(url_for('product_list'))
+    return render_template('add_product.html', form=form)
+
+@app.route('/delete_product/<int:product_id>', methods=['GET'])
+def delete_product(product_id):
+    if request.args.get('admin_key') != 'sdev220_team2_admin':
+        flash('Unauthorized access!', 'error')
+        return redirect(url_for('product_list'))
+    product = Product.query.get_or_404(product_id)
+    # Remove associated cart items
+    CartItem.query.filter_by(product_id=product_id).delete()
+    # Note: Existing order items retain historical data
+    db.session.delete(product)
+    db.session.commit()
+    flash(f'Product "{product.name}" deleted successfully!', 'success')
+    return redirect(url_for('product_list'))
 
 if __name__ == '__main__':
     with app.app_context():

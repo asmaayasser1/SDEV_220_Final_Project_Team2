@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Product - SDEV 220 Store</title>
+</head>
+<body>
+    <h2>Add New Product</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p style="color: {{ 'green' if category == 'success' else 'red' }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>{{ form.name.label }}: {{ form.name() }}</p>
+        <p>{{ form.description.label }}: {{ form.description() }}</p>
+        <p>{{ form.price.label }}: {{ form.price() }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    <a href="{{ url_for('product_list') }}">Back to Products</a>
+</body>
+</html>
