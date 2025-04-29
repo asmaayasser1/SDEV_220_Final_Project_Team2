@@ -5,6 +5,45 @@ table { width: 100%; border-collapse: collapse; }
 th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
 .success { color: green; }
 form { margin-top: 20px; }
+
+/* Page Wrapper for Styling (TB) */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Styling For Search Bar (TB) */
+.search-container {
+  /* center it, limit width */
+  margin: 2rem auto;
+  max-width: 400px;       /* we can change this if necessary. Search bar width. */
+  width: 90%;             /* shrinks on mobile */
+}
+
+.search-container input#search-bar {
+  width: 100%;            /* fill its container */
+  padding: 0.75em 1em;
+  font-size: 1rem;
+  border: 1px solid #84A9AC;
+  border-radius: 0.5rem;
+  background-color: #415A77;  /* matches nav/buttons */
+  color: white;               
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.search-container input#search-bar::placeholder {
+  color: rgba(255,255,255,0.7);
+}
+
+.search-container input#search-bar:focus {
+  outline: none;
+  border-color: #E0E1DD;
+  box-shadow: 0 0 6px rgba(224, 225, 221, 0.6);
+  background-color: #557A99; /* slightly lighter */
+}
+
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #0D1B2A; /* خلفية الصفحة */
@@ -43,34 +82,29 @@ body {
     background-color: #1B263B;
   }
   
-  h2 {
-    .section-title {
-        text-align: center;
-        font-size: 3rem;
-        font-weight: 800;
-        color: white;
-        text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
-        margin-top: 50px;
-        margin-bottom: 30px;
-        border-bottom: 3px solid rgba(255,255,255,0.2);
-        padding-bottom: 15px;
-        width: fit-content;
-        margin-left: auto;
-        margin-right: auto;
-        animation: fadeIn 1.5s ease-in-out;
-    }
-         
-    }
-    
-    h2::after {
-        content: "";
-        display: block;
-        width: 80px;
-        height: 3px;
-        background: rgba(255, 255, 255, 0.5);
-        margin: 10px auto 0;
-        border-radius: 5px;
-    }
+  /* Animated section heading styling */
+  h2.section-title {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    margin: 50px auto 30px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid rgba(255,255,255,0.2);
+    width: fit-content;
+    animation: fadeIn 1.5s ease-in-out;
+  }
+  
+  h2.section-title::after {
+    content: "";
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.5);
+    margin: 10px auto 0;
+    border-radius: 5px;
+  }
     
     
     @keyframes fadeIn {
