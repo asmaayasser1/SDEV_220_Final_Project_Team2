@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SDEV 220 Team 2 Shop</title>
+    <title>Healthy Foods Store</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <h1>SDEV 220 Team 2 Shop</h1>
+        <h1>Healthy Foods Store</h1>
         <nav>
             <a href="{{ url_for('product_list') }}">Products</a> |
             <a href="{{ url_for('cart') }}">Cart</a> |
             <a href="{{ url_for('admin_orders') }}">Orders</a>
         </nav>
     </header>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -20,6 +21,7 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+
     {% block content %}{% endblock %}
 </body>
 </html>
