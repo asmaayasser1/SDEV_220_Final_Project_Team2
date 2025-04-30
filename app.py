@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, FloatField, SubmitField
@@ -61,32 +61,47 @@ def product_list():
     products = Product.query.all()
     return render_template('products.html', products=products)
 
-@app.route('/add_to_cart/<int:product_id>')
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
 def add_to_cart(product_id):
-    cart_item = CartItem.query.filter_by(product_id=product_id).first()
-    if cart_item:
-        cart_item.quantity += 1
+    quantity = int(request.form.get('quantity', 1))  # Get quantity from form, default to 1
+    if quantity < 1:
+        flash('Quantity must be at least 1.', 'error')
+        return redirect(url_for('product_list'))
+
+    product = Product.query.get_or_404(product_id)
+    if 'cart' not in session:
+        session['cart'] = {}
+
+    cart = session['cart']
+    if str(product_id) in cart:
+        cart[str(product_id)]['quantity'] += quantity
     else:
-        cart_item = CartItem(product_id=product_id)
-        db.session.add(cart_item)
-    db.session.commit()
-    flash('Item added to cart!', 'success')
+        cart[str(product_id)] = {
+            'name': product.name,
+            'price': product.price,
+            'quantity': quantity
+        }
+
+    session['cart'] = cart
+    flash(f'{quantity} x {product.name} added to cart!', 'success')
     return redirect(url_for('product_list'))
 
 @app.route('/cart')
 def cart():
-    cart_items = CartItem.query.all()
-    products = {p.id: p for p in Product.query.all()}
-    total = sum(products[item.product_id].price * item.quantity for item in cart_items)
-    return render_template('cart.html', cart_items=cart_items, products=products, total=total)
+    cart = session.get('cart', {})
+    total = sum(item['price'] * item['quantity'] for item in cart.values())
+    return render_template('cart.html', cart=cart, total=total)
 
-@app.route('/remove_from_cart/<int:cart_item_id>')
-def remove_from_cart(cart_item_id):
-    cart_item = CartItem.query.get_or_404(cart_item_id)
-    db.session.delete(cart_item)
-    db.session.commit()
-    flash('Item removed from cart!', 'success')
-    return redirect(url_for('cart'))
+@app.route('/remove_from_cart/<int:product_id>')
+def remove_from_cart(product_id):
+    if 'cart' in session:
+        cart = session['cart']
+        if str(product_id) in cart:
+            del cart[str(product_id)]
+            session['cart'] = cart
+            session.modified = True
+            flash('Item removed from cart!', 'error')
+    return redirect(url_for('cart'))  # Changed to redirect to cart
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
