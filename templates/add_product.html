@@ -1,24 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Product - SDEV 220 Store</title>
-</head>
-<body>
-    <h2>Add New Product</h2>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="parallax"></div>
+
+<div class="container">
+    <h2 class="section-title">Add New Product</h2>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for category, message in messages %}
-                <p style="color: {{ 'green' if category == 'success' else 'red' }}">{{ message }}</p>
-            {% endfor %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
         {% endif %}
     {% endwith %}
-    <form method="POST">
+    <form method="POST" action="{{ url_for('add_product') }}">
         {{ form.hidden_tag() }}
-        <p>{{ form.name.label }}: {{ form.name() }}</p>
-        <p>{{ form.description.label }}: {{ form.description() }}</p>
-        <p>{{ form.price.label }}: {{ form.price() }}</p>
-        <p>{{ form.submit() }}</p>
+        <label for="name">Name:</label>
+        {{ form.name(id="name", required=True) }}
+        {% if form.name.errors %}
+            <div class="error">
+                {% for error in form.name.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <label for="description">Description:</label>
+        {{ form.description(id="description", required=True) }}
+        {% if form.description.errors %}
+            <div class="error">
+                {% for error in form.description.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <label for="price">Price:</label>
+        {{ form.price(id="price", step="0.01", required=True) }}
+        {% if form.price.errors %}
+            <div class="error">
+                {% for error in form.price.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        {{ form.submit(class="add-to-cart-btn") }}
     </form>
-    <a href="{{ url_for('product_list') }}">Back to Products</a>
-</body>
-</html>
+</div>
+{% endblock %}

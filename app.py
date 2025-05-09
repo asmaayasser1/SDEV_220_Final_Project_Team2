@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
 app.config['SECRET_KEY'] = 'sdev220_team2_secret'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['TEMPLATES_AUTO_RELOAD'] = True  # Prevent caching
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 db = SQLAlchemy(app)
 
 # Custom Jinja2 filter for fixed two-decimal formatting
@@ -55,15 +55,43 @@ class ProductForm(FlaskForm):
     price = FloatField('Price', validators=[DataRequired(), NumberRange(min=0.01)])
     submit = SubmitField('Add Product')
 
+class AdminLoginForm(FlaskForm):
+    admin_key = StringField('Admin Key', validators=[DataRequired()])
+    submit = SubmitField('Login')
+
 # Routes
 @app.route('/')
 def product_list():
+    print("Session is_admin:", session.get('is_admin'))  # Debug
     products = Product.query.all()
-    return render_template('products.html', products=products)
+    return render_template('products.html', products=products, is_admin=session.get('is_admin', False))
+
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login():
+    form = AdminLoginForm()
+    print("Form fields:", [field.name for field in form])  # Debug
+    print("CSRF enabled:", app.config.get('WTF_CSRF_ENABLED', True))  # Debug
+    print("CSRF token:", form.csrf_token)  # Debug
+    if form.validate_on_submit():
+        print("Form data:", form.admin_key.data)  # Debug
+        if form.admin_key.data == 'sdev220_team2_admin':
+            session['is_admin'] = True
+            flash('Admin login successful!', 'success')
+            return redirect(url_for('product_list'))
+        else:
+            flash('Invalid admin key.', 'error')
+    return render_template('admin_login.html', form=form)
+
+@app.route('/admin_logout')
+def admin_logout():
+    session.pop('is_admin', None)
+    print("After logout, is_admin:", session.get('is_admin'))  # Debug
+    flash('Logged out of admin mode.', 'success')
+    return redirect(url_for('product_list'))
 
 @app.route('/add_to_cart/<int:product_id>', methods=['POST'])
 def add_to_cart(product_id):
-    quantity = int(request.form.get('quantity', 1))  # Get quantity from form, default to 1
+    quantity = int(request.form.get('quantity', 1))
     if quantity < 1:
         flash('Quantity must be at least 1.', 'error')
         return redirect(url_for('product_list'))
@@ -83,6 +111,7 @@ def add_to_cart(product_id):
         }
 
     session['cart'] = cart
+    session.modified = True
     flash(f'{quantity} x {product.name} added to cart!', 'success')
     return redirect(url_for('product_list'))
 
@@ -100,8 +129,8 @@ def remove_from_cart(product_id):
             del cart[str(product_id)]
             session['cart'] = cart
             session.modified = True
-            flash('Item removed from cart!', 'error')
-    return redirect(url_for('cart'))  # Changed to redirect to cart
+            flash('Item removed from cart!', 'success')  # Changed to green
+    return redirect(url_for('cart'))
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
@@ -152,7 +181,7 @@ def admin_orders():
 
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
-    if request.args.get('admin_key') != 'sdev220_team2_admin':
+    if not session.get('is_admin', False):
         flash('Unauthorized access!', 'error')
         return redirect(url_for('product_list'))
     form = ProductForm()
@@ -170,13 +199,11 @@ def add_product():
 
 @app.route('/delete_product/<int:product_id>', methods=['GET'])
 def delete_product(product_id):
-    if request.args.get('admin_key') != 'sdev220_team2_admin':
+    if not session.get('is_admin', False):
         flash('Unauthorized access!', 'error')
         return redirect(url_for('product_list'))
     product = Product.query.get_or_404(product_id)
-    # Remove associated cart items
     CartItem.query.filter_by(product_id=product_id).delete()
-    # Note: Existing order items retain historical data
     db.session.delete(product)
     db.session.commit()
     flash(f'Product "{product.name}" deleted successfully!', 'success')

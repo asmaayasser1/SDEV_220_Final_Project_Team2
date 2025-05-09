@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="parallax"></div>
+
+<div class="container">
+    <h2 class="section-title">Admin Login</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('admin_login') }}">
+        {{ form.hidden_tag() }}
+        <label for="admin_key">Admin Key:</label>
+        {{ form.admin_key(id="admin_key", required=True) }}
+        {% if form.admin_key.errors %}
+            <div class="error">
+                {% for error in form.admin_key.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        {{ form.submit(class="add-to-cart-btn") }}
+    </form>
+</div>
+{% endblock %}

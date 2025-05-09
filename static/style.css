@@ -322,6 +322,6 @@ h2.section-title::after {
 }
 
 /* Remove unused styles */
-table, th, td, form, .success {
+table, th, td,, .success {
     display: none; /* Remove if used elsewhere */
 }
