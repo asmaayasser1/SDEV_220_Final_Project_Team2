@@ -1,3 +1,13 @@
+// ================================================
+// File: search.js
+// Project: Healthy Foods Store - Final Project
+// Description: JavaScript file to handle live product filtering and search functionality
+// Author(s): Team 2 - asmaayasser1 and collaborators
+// Date: May 2025
+// ================================================
+
+
+
 // static/search.js (TB)
 
 document.addEventListener('DOMContentLoaded', () => {
