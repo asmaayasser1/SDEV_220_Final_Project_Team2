@@ -1,3 +1,12 @@
+# ============================================
+# File: app.py
+# Project: Healthy Foods Store - Final Project
+# Description: Main Flask application file that handles routes and logic.
+# Author(s): Team 2 
+# Date: May 2025
+# ============================================
+
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
