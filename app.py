@@ -2,7 +2,7 @@
 # File: app.py
 # Project: Healthy Foods Store - Final Project
 # Description: Main Flask application file that handles routes and logic.
-# Author(s): Team 2 
+# Author(s): Team 2
 # Date: May 2025
 # ============================================
 
