@@ -1,7 +1,7 @@
 # ============================================
-# File: app.py
+# File: manage_shop.py
 # Project: Healthy Foods Store - Final Project
-# Description: Main Flask application file that handles routes and logic.
+# Description: Handles product management tasks like adding and removing items.
 # Author(s): Team 2 
 # Date: May 2025
 # ============================================
