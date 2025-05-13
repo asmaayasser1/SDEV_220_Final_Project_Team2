@@ -2,7 +2,7 @@
 # File: requirements.txt
 # Project: Healthy Foods Store - Final Project
 # Description: Contains the list of Python packages required for the project.
-# Author(s): Team 2 
+# Author(s): Team 2
 # Date: May 2025
 # ============================================
 
